@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #f95b0a;
+    --brand-light: rgba(249,91,10,0.12);
+    --brand-border: rgba(249,91,10,0.35);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans antialiased;
+    transition: background-color 0.25s, color 0.25s;
+  }
+
+  .dark body {
+    @apply bg-ink-950 text-ink-100;
+  }
+
+  ::selection {
+    background: rgba(249,91,10,0.25);
+  }
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-ink-300 dark:bg-ink-700 rounded-full; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+
+/* ── Focus ring ────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Components ────────────────────────────────────────────────────── */
+@layer components {
+  /* Inputs */
+  .input {
+    @apply w-full rounded-xl border border-ink-200 dark:border-ink-700
+           bg-white dark:bg-ink-900
+           text-ink-900 dark:text-ink-100
+           px-4 py-3 text-sm
+           placeholder-ink-400 dark:placeholder-ink-600
+           transition-all duration-150;
+  }
+  .input:focus {
+    @apply outline-none border-brand-500;
+    box-shadow: 0 0 0 3px rgba(249,91,10,0.18);
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white dark:bg-ink-900
+           border border-ink-100 dark:border-ink-800
+           rounded-2xl shadow-card;
+  }
+  .card-hover {
+    @apply hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-brand-500 hover:bg-brand-600 active:bg-brand-700
+           text-white font-semibold text-sm
+           px-5 py-2.5 rounded-xl
+           shadow-sm transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-ink-600 dark:text-ink-400
+           hover:bg-ink-100 dark:hover:bg-ink-800
+           font-medium text-sm px-4 py-2 rounded-xl
+           transition-all duration-150;
+  }
+
+  /* Tag / pill */
+  .pill {
+    @apply inline-flex items-center gap-1.5 text-xs font-semibold
+           px-2.5 py-1 rounded-full;
+  }
+}
+
+/* ── Recharts overrides ────────────────────────────────────────────── */
+.recharts-cartesian-axis-tick text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+}
