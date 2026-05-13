@@ -13,6 +13,6 @@ services:
       - key: MONGO_URI
         sync: false          # set manually in Render dashboard
       - key: FRONTEND_URL
-        value: https://quickpoll-abhay.vercel.app
+        value: https://quickpoll-nu.vercel.app
       - key: PORT
         value: 10000

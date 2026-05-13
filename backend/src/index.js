@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
   'http://localhost:5173',
+  'https://quickpoll-nu.vercel.app',
   'https://quickpoll-abhay.vercel.app',
 ];
 app.use(cors({
@@ -24,7 +25,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Trust proxy for accurate IP on Render / behind load balancers
 app.set('trust proxy', 1);
