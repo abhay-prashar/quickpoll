@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: pollvault-backend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false          # set manually in Render dashboard
+      - key: FRONTEND_URL
+        value: https://quickpoll-abhay.vercel.app
+      - key: PORT
+        value: 10000
