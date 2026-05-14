@@ -19,6 +19,7 @@ export default function CreatePoll() {
   const [question, setQuestion]   = useState('')
   const [options, setOptions]     = useState(['', ''])
   const [expiry, setExpiry]       = useState('never')
+  const [requireName, setRequireName] = useState(false)
   const [loading, setLoading]     = useState(false)
   const [focusedOpt, setFocusedOpt] = useState(null)
 
@@ -42,7 +43,7 @@ export default function CreatePoll() {
     if (validOpts.length < 2) return toast.error('Fill in at least 2 options.')
     setLoading(true)
     try {
-      const data = await createPoll({ question: q, options: validOpts, expiry })
+      const data = await createPoll({ question: q, options: validOpts, expiry, requireName })
       toast.success('Poll created!')
       navigate(`/poll/${data.poll.slug}`)
     } catch (err) {
@@ -177,6 +178,19 @@ export default function CreatePoll() {
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="flex-1 w-full flex items-center justify-start sm:justify-center gap-2 mt-2 sm:mt-0 pt-4 sm:pt-6">
+              <input
+                id="poll-require-name"
+                type="checkbox"
+                checked={requireName}
+                onChange={e => setRequireName(e.target.checked)}
+                className="w-4 h-4 rounded border-ink-300 text-brand-500 focus:ring-brand-500"
+              />
+              <label htmlFor="poll-require-name" className="text-sm font-medium text-ink-700 dark:text-ink-300">
+                Ask for voter's name
+              </label>
             </div>
 
             <button

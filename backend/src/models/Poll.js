@@ -46,6 +46,10 @@ const pollSchema = new mongoose.Schema(
       type: Date,
       default: null, // null = never expires
     },
+    requireName: {
+      type: Boolean,
+      default: false,
+    },
   },
   { versionKey: false }
 );

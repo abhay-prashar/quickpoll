@@ -28,6 +28,7 @@ export default function Vote() {
   const [selected, setSelected] = useState(null)
   const [expired, setExpired]   = useState(false)
   const [hovering, setHovering] = useState(null)
+  const [voterName, setVoterName] = useState('')
 
   useEffect(() => {
     if (localStorage.getItem(`voted_${slug}`)) navigate(`/results/${slug}`, { replace: true })
@@ -45,12 +46,16 @@ export default function Vote() {
 
   const handleVote = async (idx) => {
     if (selected !== null || voting || expired) return
+    if (poll?.requireName && !voterName.trim()) {
+      return toast.error("Please enter your name to vote.")
+    }
+    
     setSelected(idx)
     // small delay so user sees selection before submit
     await new Promise(r => setTimeout(r, 340))
     setVoting(true)
     try {
-      await votePoll(slug, idx)
+      await votePoll(slug, idx, voterName)
       localStorage.setItem(`voted_${slug}`, '1')
       toast.success('Vote recorded! 🎉')
       navigate(`/results/${slug}`)
@@ -127,6 +132,23 @@ export default function Vote() {
 
       {/* Options */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-3 animate-slide-up">
+        {poll.requireName && (
+          <div className="mb-6">
+            <label htmlFor="voter-name" className="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">
+              Your Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="voter-name"
+              type="text"
+              placeholder="Enter your name to vote"
+              value={voterName}
+              onChange={e => setVoterName(e.target.value)}
+              disabled={voting || selected !== null}
+              className="input w-full"
+            />
+          </div>
+        )}
+
         {poll.options.map((opt, idx) => {
           const isSelected = selected === idx
           const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0

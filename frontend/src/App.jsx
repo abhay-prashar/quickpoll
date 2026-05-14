@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import CreatePoll from './pages/CreatePoll'
 import Vote from './pages/Vote'
 import Results from './pages/Results'
+import Admin from './pages/Admin'
 
 export default function App() {
   const [dark, setDark] = useState(() => {
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/"              element={<CreatePoll />} />
         <Route path="/poll/:slug"    element={<Vote />} />
         <Route path="/results/:slug" element={<Results />} />
+        <Route path="/admin"         element={<Admin />} />
       </Routes>
 
       <Toaster

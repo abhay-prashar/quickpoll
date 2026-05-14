@@ -18,6 +18,10 @@ const voteSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    voterName: {
+      type: String,
+      default: null,
+    },
   },
   { versionKey: false }
 );

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { getPoll } from '../utils/api'
 import LiveBarChart from '../components/LiveBarChart'
 import LoadingSpinner, { Skeleton } from '../components/LoadingSpinner'
+import QRCodeDisplay from '../components/QRCodeDisplay'
 
 const COLORS = ['#f95b0a','#fb7a33','#fdaa6e','#f97316','#ea580c','#c2410c','#9a3412','#7c2d12','#fb923c','#fed7aa']
 const OPTION_EMOJIS = ['🔵','🟠','🟢','🟣','🔴','🟡','⚫','⚪','🟤','🔷']
@@ -87,8 +88,9 @@ function StatsGrid({ poll, total }) {
 }
 
 /* ── Share bar ─────────────────────────────────────────────────────── */
-function ShareBar({ slug }) {
+function ShareBar({ poll }) {
   const [copied, setCopied] = useState(false)
+  const slug = poll.slug
   const voteUrl   = `${window.location.origin}/poll/${slug}`
   const resultsUrl = `${window.location.origin}/results/${slug}`
 
@@ -99,31 +101,57 @@ function ShareBar({ slug }) {
     } catch { toast.error('Copy failed.') }
   }
 
+  const downloadCSV = () => {
+    const header = "Option,Votes\n";
+    const rows = poll.options.map(o => `"${o.text.replace(/"/g, '""')}",${o.votes}`).join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + header + rows;
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `poll-${slug}-results.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   return (
     <div className="card p-5">
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-400 dark:text-ink-500 mb-3">Share</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <div>
-          <p className="text-xs text-ink-500 dark:text-ink-400 mb-1.5">Voting link</p>
-          <div className="flex gap-1.5">
-            <code className="flex-1 text-xs bg-ink-100 dark:bg-ink-800 px-2.5 py-2 rounded-lg truncate text-ink-600 dark:text-ink-300">
-              /poll/{slug}
-            </code>
-            <button onClick={() => copy(voteUrl)} className="btn-primary px-3 py-2 text-xs shrink-0">
-              {copied ? '✓' : 'Copy'}
-            </button>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-400 dark:text-ink-500">Share & Export</p>
+        <button onClick={downloadCSV} className="text-xs text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1.5 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-center">
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs text-ink-500 dark:text-ink-400 mb-1.5">Voting link</p>
+            <div className="flex gap-1.5">
+              <code className="flex-1 text-xs bg-ink-100 dark:bg-ink-800 px-2.5 py-2 rounded-lg truncate text-ink-600 dark:text-ink-300">
+                {voteUrl}
+              </code>
+              <button onClick={() => copy(voteUrl)} className="btn-primary px-3 py-2 text-xs shrink-0">
+                {copied ? '✓' : 'Copy'}
+              </button>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-ink-500 dark:text-ink-400 mb-1.5">Results link</p>
+            <div className="flex gap-1.5">
+              <code className="flex-1 text-xs bg-ink-100 dark:bg-ink-800 px-2.5 py-2 rounded-lg truncate text-ink-600 dark:text-ink-300">
+                {resultsUrl}
+              </code>
+              <button onClick={() => copy(resultsUrl)} className="btn-primary px-3 py-2 text-xs shrink-0">
+                Copy
+              </button>
+            </div>
           </div>
         </div>
-        <div>
-          <p className="text-xs text-ink-500 dark:text-ink-400 mb-1.5">Results link</p>
-          <div className="flex gap-1.5">
-            <code className="flex-1 text-xs bg-ink-100 dark:bg-ink-800 px-2.5 py-2 rounded-lg truncate text-ink-600 dark:text-ink-300">
-              /results/{slug}
-            </code>
-            <button onClick={() => copy(resultsUrl)} className="btn-primary px-3 py-2 text-xs shrink-0">
-              Copy
-            </button>
-          </div>
+        
+        <div className="hidden sm:block">
+          <QRCodeDisplay url={voteUrl} />
         </div>
       </div>
     </div>
@@ -291,7 +319,7 @@ export default function Results() {
         )}
 
         {/* Share */}
-        <ShareBar slug={slug} />
+        <ShareBar poll={poll} />
 
         {/* Nav */}
         <div className="flex items-center justify-between pt-2 text-xs text-ink-400 dark:text-ink-500">

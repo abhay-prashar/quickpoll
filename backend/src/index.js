@@ -40,7 +40,10 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+const adminRoutes = require('./routes/admin');
+
 app.use('/api/polls', pollRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 

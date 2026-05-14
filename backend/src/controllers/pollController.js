@@ -21,7 +21,7 @@ function resolveExpiry(expiry) {
 // ─── POST /api/polls ──────────────────────────────────────────────────────────
 const createPoll = async (req, res, next) => {
   try {
-    const { question, options, expiry } = req.body;
+    const { question, options, expiry, requireName } = req.body;
 
     if (!question || typeof question !== 'string' || !question.trim()) {
       return res.status(400).json({ error: 'Question is required.' });
@@ -57,6 +57,7 @@ const createPoll = async (req, res, next) => {
       options: sanitisedOptions,
       slug,
       expiresAt: resolveExpiry(expiry),
+      requireName: Boolean(requireName),
     });
 
     res.status(201).json({ success: true, poll });
@@ -98,7 +99,7 @@ const getPoll = async (req, res, next) => {
 const votePoll = async (req, res, next) => {
   try {
     const { slug } = req.params;
-    const { optionIndex } = req.body;
+    const { optionIndex, voterName } = req.body;
 
     // 1. Validate optionIndex
     if (optionIndex === undefined || optionIndex === null || !Number.isInteger(optionIndex)) {
@@ -121,6 +122,17 @@ const votePoll = async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid option index.' });
     }
 
+    // 4.5 Validate voterName if required
+    let finalVoterName = null;
+    if (poll.requireName) {
+      if (!voterName || typeof voterName !== 'string' || !voterName.trim()) {
+        return res.status(400).json({ error: 'Your name is required to vote on this poll.' });
+      }
+      finalVoterName = voterName.trim();
+    } else if (voterName && typeof voterName === 'string' && voterName.trim()) {
+      finalVoterName = voterName.trim();
+    }
+
     // 5. Get client IP
     const ip =
       req.ip ||
@@ -131,7 +143,7 @@ const votePoll = async (req, res, next) => {
     // 6. Atomic duplicate prevention via unique index
     //    Vote.create() will throw code 11000 if (pollSlug, ip) already exists.
     try {
-      await Vote.create({ pollSlug: slug, ip, optionIndex });
+      await Vote.create({ pollSlug: slug, ip, optionIndex, voterName: finalVoterName });
     } catch (dupErr) {
       if (dupErr.code === 11000) {
         return res.status(409).json({ error: 'You have already voted on this poll.' });
