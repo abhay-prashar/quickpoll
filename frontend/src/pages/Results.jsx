@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { getPoll } from '../utils/api'
+import { getPoll, getPollVotes } from '../utils/api'
 import LiveBarChart from '../components/LiveBarChart'
 import LoadingSpinner, { Skeleton } from '../components/LoadingSpinner'
 import QRCodeDisplay from '../components/QRCodeDisplay'
@@ -101,17 +101,28 @@ function ShareBar({ poll }) {
     } catch { toast.error('Copy failed.') }
   }
 
-  const downloadCSV = () => {
-    const header = "Option,Votes\n";
-    const rows = poll.options.map(o => `"${o.text.replace(/"/g, '""')}",${o.votes}`).join("\n");
-    const csvContent = "data:text/csv;charset=utf-8," + header + rows;
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `poll-${slug}-results.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  const downloadCSV = async () => {
+    try {
+      const { votes } = await getPollVotes(slug);
+      let header, rows;
+      if (poll.requireName) {
+        header = "Voter Name,Option Voted,Time Voted\n";
+        rows = votes.map(v => `"${(v.voterName || '').replace(/"/g, '""')}","${v.optionText.replace(/"/g, '""')}",${new Date(v.votedAt).toISOString()}`).join("\n");
+      } else {
+        header = "Option,Votes\n";
+        rows = poll.options.map(o => `"${o.text.replace(/"/g, '""')}",${o.votes}`).join("\n");
+      }
+      const csvContent = "data:text/csv;charset=utf-8," + header + rows;
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `poll-${slug}-results.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      toast.error('Failed to export CSV');
+    }
   };
 
   return (
@@ -162,6 +173,7 @@ function ShareBar({ poll }) {
 export default function Results() {
   const { slug }   = useParams()
   const [poll, setPoll]       = useState(null)
+  const [voters, setVoters]   = useState([])
   const [loading, setLoading] = useState(true)
   const [animKey, setAnimKey] = useState(0)
   const prevTotalRef          = useRef(0)
@@ -173,6 +185,12 @@ export default function Results() {
       if (newTotal !== prevTotalRef.current) {
         setAnimKey(k => k + 1)
         prevTotalRef.current = newTotal
+        
+        // Fetch voter names if required
+        if (data.poll.requireName) {
+          const votesData = await getPollVotes(slug);
+          setVoters(votesData.votes);
+        }
       }
       setPoll(data.poll)
       return true
@@ -315,6 +333,28 @@ export default function Results() {
               Breakdown
             </p>
             <StatsGrid poll={poll} total={total} />
+          </div>
+        )}
+
+        {/* Voter List */}
+        {poll.requireName && total > 0 && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-ink-400 dark:text-ink-500 mb-4">
+              Recent Voters
+            </p>
+            <div className="max-h-64 overflow-y-auto pr-2 space-y-2">
+              {voters.map((v, i) => (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-ink-100 dark:border-ink-800 last:border-0">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-ink-900 dark:text-ink-100">{v.voterName}</span>
+                    <span className="text-xs text-ink-500">{new Date(v.votedAt).toLocaleString()}</span>
+                  </div>
+                  <span className="text-sm font-medium text-ink-700 dark:text-ink-300 max-w-[120px] sm:max-w-[200px] truncate">
+                    {v.optionText}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

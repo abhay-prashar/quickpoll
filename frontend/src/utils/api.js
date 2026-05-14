@@ -9,6 +9,7 @@ const api = axios.create({
 
 export const createPoll   = (data)              => api.post('/polls', data).then(r => r.data)
 export const getPoll      = (slug)              => api.get(`/polls/${slug}`).then(r => r.data)
+export const getPollVotes = (slug)              => api.get(`/polls/${slug}/votes`).then(r => r.data)
 export const votePoll     = (slug, optionIndex, voterName) => api.post(`/polls/${slug}/vote`, { optionIndex, voterName }).then(r => r.data)
 export const getRecentPolls = ()               => api.get('/polls/recent').then(r => r.data)
 

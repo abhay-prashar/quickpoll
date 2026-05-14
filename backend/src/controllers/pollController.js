@@ -190,4 +190,30 @@ const listRecentPolls = async (req, res, next) => {
   }
 };
 
-module.exports = { createPoll, getPoll, votePoll, listRecentPolls };
+// ─── GET /api/polls/:slug/votes ──────────────────────────────────────────────────
+const getPollVotes = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const poll = await Poll.findOne({ slug }).lean();
+    if (!poll) return res.status(404).json({ error: 'Poll not found.' });
+
+    // Fetch votes, sorted by most recent
+    const votes = await Vote.find({ pollSlug: slug })
+      .sort({ votedAt: -1 })
+      .select('voterName optionIndex votedAt -_id')
+      .lean();
+
+    // Map optionIndex to actual text
+    const enrichedVotes = votes.map(v => ({
+      voterName: v.voterName || 'Anonymous',
+      optionText: poll.options[v.optionIndex]?.text || 'Unknown',
+      votedAt: v.votedAt,
+    }));
+
+    res.json({ success: true, votes: enrichedVotes });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { createPoll, getPoll, votePoll, listRecentPolls, getPollVotes };
