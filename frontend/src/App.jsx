@@ -6,6 +6,9 @@ import CreatePoll from './pages/CreatePoll'
 import Vote from './pages/Vote'
 import Results from './pages/Results'
 import Admin from './pages/Admin'
+import CreateSurvey from './pages/CreateSurvey'
+import SurveyVote from './pages/SurveyVote'
+import SurveyResults from './pages/SurveyResults'
 
 export default function App() {
   const [dark, setDark] = useState(() => {
@@ -24,10 +27,15 @@ export default function App() {
       <Navbar dark={dark} toggleDark={() => setDark(d => !d)} />
 
       <Routes>
-        <Route path="/"              element={<CreatePoll />} />
-        <Route path="/poll/:slug"    element={<Vote />} />
-        <Route path="/results/:slug" element={<Results />} />
-        <Route path="/admin"         element={<Admin />} />
+        <Route path="/"                     element={<CreatePoll />} />
+        <Route path="/poll/:slug"           element={<Vote />} />
+        <Route path="/results/:slug"        element={<Results />} />
+        
+        <Route path="/survey/new"           element={<CreateSurvey />} />
+        <Route path="/survey/:slug"         element={<SurveyVote />} />
+        <Route path="/survey/results/:slug" element={<SurveyResults />} />
+        
+        <Route path="/admin"                element={<Admin />} />
       </Routes>
 
       <Toaster

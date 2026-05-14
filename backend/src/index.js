@@ -41,8 +41,10 @@ app.use(globalLimiter);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const adminRoutes = require('./routes/admin');
+const surveyRoutes = require('./routes/surveys');
 
 app.use('/api/polls', pollRoutes);
+app.use('/api/surveys', surveyRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));

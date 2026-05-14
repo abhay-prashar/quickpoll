@@ -7,11 +7,18 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-export const createPoll   = (data)              => api.post('/polls', data).then(r => r.data)
-export const getPoll      = (slug)              => api.get(`/polls/${slug}`).then(r => r.data)
-export const getPollVotes = (slug)              => api.get(`/polls/${slug}/votes`).then(r => r.data)
-export const votePoll     = (slug, optionIndex, voterName) => api.post(`/polls/${slug}/vote`, { optionIndex, voterName }).then(r => r.data)
-export const getRecentPolls = ()               => api.get('/polls/recent').then(r => r.data)
+export const createPoll     = (data)              => api.post('/polls', data).then(r => r.data)
+export const getPoll        = (slug)              => api.get(`/polls/${slug}`).then(r => r.data)
+export const getPollVotes   = (slug)              => api.get(`/polls/${slug}/votes`).then(r => r.data)
+export const votePoll       = (slug, optionIndex, voterName) => api.post(`/polls/${slug}/vote`, { optionIndex, voterName }).then(r => r.data)
+export const getRecentPolls = ()                  => api.get('/polls/recent').then(r => r.data)
+
+// Survey Routes
+export const createSurvey     = (data)               => api.post('/surveys', data).then(r => r.data)
+export const getSurvey        = (slug)               => api.get(`/surveys/${slug}`).then(r => r.data)
+export const getSurveyVotes   = (slug)               => api.get(`/surveys/${slug}/votes`).then(r => r.data)
+export const voteSurvey       = (slug, answers, voterName) => api.post(`/surveys/${slug}/vote`, { answers, voterName }).then(r => r.data)
+export const getRecentSurveys = ()                   => api.get('/surveys/recent').then(r => r.data)
 
 // Admin Routes
 export const adminLogin = async (password) => {
