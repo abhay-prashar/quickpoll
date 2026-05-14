@@ -20,16 +20,18 @@ export default function Navbar({ dark, toggleDark }) {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
-          {!isHome && (
-            <div className="hidden sm:flex items-center gap-1 mr-2">
+          <div className="hidden sm:flex items-center gap-1 mr-2">
+            {loc.pathname !== '/' && (
               <Link to="/" className="btn-ghost text-xs">
                 + New Poll
               </Link>
+            )}
+            {loc.pathname !== '/survey/new' && (
               <Link to="/survey/new" className="btn-ghost text-xs">
                 + New Survey
               </Link>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Live indicator */}
           <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-ink-500 dark:text-ink-400 px-2">

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { createPoll } from '../utils/api'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -67,6 +67,9 @@ export default function CreatePoll() {
               <p className="mt-2 text-sm text-ink-500 dark:text-ink-400 max-w-sm">
                 Create a poll, share the link, and watch votes come in live — no account needed.
               </p>
+              <Link to="/survey/new" className="mt-5 inline-flex items-center gap-2 btn-ghost text-sm border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 shadow-sm hover:shadow hover:-translate-y-0.5 transition-all">
+                <span className="text-xl">📋</span> Create a Multi-Question Survey Instead →
+              </Link>
             </div>
             <div className="hidden sm:block text-5xl select-none">🗳️</div>
           </div>
