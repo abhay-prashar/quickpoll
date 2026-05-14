@@ -1,5 +1,7 @@
 import React from 'react';
-import QRCode from 'react-qr-code';
+import QRCodePackage from 'react-qr-code';
+
+const QRCode = QRCodePackage.default || QRCodePackage;
 
 export default function QRCodeDisplay({ url }) {
   const downloadQR = () => {
