@@ -273,6 +273,18 @@ export default function Results() {
       {/* ── Body ────────────────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-4 animate-slide-up">
 
+        {!isExpired && !localStorage.getItem(`voted_${slug}`) && (
+          <div className="card p-4 sm:p-5 bg-brand-50/50 dark:bg-brand-500/5 border-2 border-brand-200 dark:border-brand-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-brand-700 dark:text-brand-400 text-base">Haven't voted yet?</p>
+              <p className="text-sm text-brand-600/80 dark:text-brand-400/80 mt-0.5">Cast your vote to see the live action.</p>
+            </div>
+            <Link to={`/poll/${slug}`} className="btn-primary px-6 py-2.5 text-sm whitespace-nowrap w-full sm:w-auto text-center font-bold">
+              Vote Now →
+            </Link>
+          </div>
+        )}
+
         {/* Total votes + stat cards */}
         <div className="grid grid-cols-3 gap-3">
           <div className="card p-4 text-center">
