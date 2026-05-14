@@ -1,133 +1,45 @@
-# PollVault 🗳️
+# PollVault Pro 🗳️
 
-> A real-time, anonymous polling web application built with the MERN stack.
+A real-time, production-ready polling application built on the MERN stack. Create polls, share them, and watch results come in live with anonymous voting and duplicate prevention.
 
-<!-- Demo screenshot placeholder – replace with actual screenshot after deployment -->
+## Features ✨
 
-## ✨ Features
+*   **Atomic Duplicate Vote Prevention:** Uses a server-side MongoDB compound unique index (`pollSlug` + `IP`) to ensure true one-vote-per-device integrity, rather than relying solely on client-side cookies or localStorage.
+*   **Live Results (REST Polling):** The results page fetches new data automatically every 3 seconds, complete with exponential backoff on failure and seamless UI transitions using Recharts.
+*   **Poll Expiry & Countdown:** Set polls to expire after 1 hour, 1 day, or 1 week. Implemented with MongoDB TTL indexes and an active frontend countdown.
+*   **Analytics:** Displays unique voters (distinct IPs) and voting velocity (votes in the last hour).
+*   **Shareable Links:** 1-click "Copy to Clipboard" for voting and results links using the Clipboard API.
+*   **Dark Mode Toggle:** Integrated Tailwind dark mode with localStorage persistence.
+*   **Rate Limiting:** `express-rate-limit` secures the vote endpoint (max 10 votes / min / IP).
+*   **Responsive & Polished UI:** Minimalist editorial design, Space Grotesk typography, skeleton loaders, and Recharts animations.
 
-| Feature | Details |
-|---|---|
-| **Live Results** | Results page polls the API every 3 s and animates bar chart updates |
-| **Atomic Vote Logic** | MongoDB compound unique index prevents duplicate votes server-side |
-| **Duplicate Prevention** | IP-based Vote record + `localStorage` flag on client |
-| **Shareable Links** | One-click copy for voting + results URLs |
-| **Expiry Control** | Set polls to expire in 1h / 1d / 1 week, or never |
-| **Dark Mode** | System preference + manual toggle, persisted in `localStorage` |
-| **Rate Limiting** | 10 vote requests per IP per minute |
-| **Responsive** | Mobile-first Tailwind CSS layout |
+## Tech Stack 🛠️
 
-## 🛠 Tech Stack
+*   **Frontend:** React, Vite, Tailwind CSS, React Router v6, Recharts, `react-hot-toast`
+*   **Backend:** Node.js, Express, MongoDB, Mongoose, `express-rate-limit`, `nanoid`
+*   **Deployment:** Vercel (Frontend), Render (Backend), MongoDB Atlas (Database)
 
-| Layer | Tech |
-|---|---|
-| Frontend | React 18, Vite, Tailwind CSS 3, Recharts, React Router v6 |
-| Backend | Node.js 18+, Express 4, Mongoose 8 |
-| Database | MongoDB Atlas |
-| Auth | Anonymous (IP + localStorage) |
+## Run Locally 🚀
 
-## 📂 Project Structure
-
-```
-Voting/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/pollController.js
-│   │   ├── middleware/errorHandler.js
-│   │   ├── models/Poll.js
-│   │   ├── models/Vote.js
-│   │   ├── routes/polls.js
-│   │   └── index.js
-│   ├── .env.example
-│   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Icons.jsx
-    │   │   ├── LiveBarChart.jsx
-    │   │   ├── LoadingSpinner.jsx
-    │   │   └── Navbar.jsx
-    │   ├── pages/
-    │   │   ├── CreatePoll.jsx
-    │   │   ├── Vote.jsx
-    │   │   └── Results.jsx
-    │   ├── utils/api.js
-    │   ├── App.jsx
-    │   └── main.jsx
-    ├── .env.example
-    └── package.json
-```
-
-## 🚀 Local Setup
-
-### Prerequisites
-- Node.js ≥ 18
-- MongoDB Atlas account (free tier works)
-
-### 1. Clone & install
-
+### 1. Backend Setup
 ```bash
-git clone <your-repo-url>
-
-# Backend
 cd backend
 npm install
 cp .env.example .env
-# Fill in MONGO_URI in .env
+# Edit .env and add your MongoDB URI
+npm run dev
+```
 
-# Frontend
-cd ../frontend
+### 2. Frontend Setup
+```bash
+cd frontend
 npm install
 cp .env.example .env
-# VITE_API_URL=http://localhost:5000 (already set)
+# Ensure VITE_API_URL points to http://localhost:5000 (or your backend port)
+npm run dev
 ```
 
-### 2. Run locally
+Visit `http://localhost:5173` to view the app!
 
-```bash
-# Terminal 1 — backend
-cd backend && npm run dev
-
-# Terminal 2 — frontend
-cd frontend && npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173)
-
----
-
-## ☁️ Deployment
-
-### Backend → Render
-
-1. Create a new **Web Service** on [Render](https://render.com).
-2. Set **Root directory** to `backend`.
-3. Set **Build command**: `npm install`
-4. Set **Start command**: `node src/index.js`
-5. Add environment variables:
-   - `MONGO_URI` — your MongoDB Atlas connection string
-   - `PORT` — `10000` (Render default)
-   - `FRONTEND_URL` — your Vercel frontend URL (for CORS)
-
-### Frontend → Vercel
-
-1. Import the repo into [Vercel](https://vercel.com).
-2. Set **Root directory** to `frontend`.
-3. Set **Build command**: `npm run build`
-4. Set **Output directory**: `dist`
-5. Add environment variable:
-   - `VITE_API_URL` — your Render backend URL (e.g. `https://pollvault.onrender.com`)
-
----
-
-## 🔐 Duplicate Vote Prevention
-
-1. **Client**: `localStorage.setItem("voted_<slug>", "1")` on successful vote → redirect to results on revisit.
-2. **Server (atomic)**: A `Vote` document is created with a compound unique index on `{ pollSlug, ip }`. If the same IP votes twice, MongoDB throws a duplicate key error (code 11000) → API returns `409 Already voted`.
-3. `Poll.options[n].votes` is incremented atomically with `$inc` only after the Vote document is successfully inserted.
-
----
-
-## 📄 License
-
-MIT
+## Live Demo 🌐
+**Frontend:** [https://quickpoll-nu.vercel.app](https://quickpoll-nu.vercel.app)

@@ -75,9 +75,18 @@ const getPoll = async (req, res, next) => {
       return res.status(404).json({ error: 'Poll not found.' });
     }
 
+    // Analytics: Unique voters & velocity
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const [uniqueVoters, votesLastHour] = await Promise.all([
+      Vote.distinct('ip', { pollSlug: slug }).then(ips => ips.length),
+      Vote.countDocuments({ pollSlug: slug, votedAt: { $gte: oneHourAgo } })
+    ]);
+
     const pollObj = poll.toJSON();
     // Add total votes
     pollObj.totalVotes = poll.options.reduce((sum, o) => sum + o.votes, 0);
+    pollObj.uniqueVoters = uniqueVoters;
+    pollObj.votesLastHour = votesLastHour;
 
     res.json({ success: true, poll: pollObj });
   } catch (err) {

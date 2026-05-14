@@ -147,15 +147,35 @@ export default function Results() {
         prevTotalRef.current = newTotal
       }
       setPoll(data.poll)
+      return true
     } catch (err) {
       if (err.response?.status === 404) toast.error('Poll not found.')
+      return false
     } finally { setLoading(false) }
   }, [slug])
 
   useEffect(() => {
-    fetchPoll()
-    const id = setInterval(fetchPoll, 3000)
-    return () => clearInterval(id)
+    let isActive = true;
+    let delay = 3000;
+    
+    const pollLoop = async () => {
+      if (!isActive) return;
+      const success = await fetchPoll();
+      if (!isActive) return;
+      
+      if (success) {
+        delay = 3000; // reset on success
+      } else {
+        delay = Math.min(delay * 1.5, 30000); // exponential backoff up to 30s
+      }
+      setTimeout(pollLoop, delay);
+    };
+    
+    fetchPoll().then(() => {
+      if (isActive) setTimeout(pollLoop, delay);
+    });
+    
+    return () => { isActive = false; };
   }, [fetchPoll])
 
   if (loading) return (
@@ -244,7 +264,19 @@ export default function Results() {
               <p className="text-xs text-ink-300 dark:text-ink-600 mt-1">Results update every 3 seconds</p>
             </div>
           ) : (
-            <LiveBarChart poll={poll} animKey={animKey} />
+            <>
+              <LiveBarChart poll={poll} animKey={animKey} />
+              <div className="mt-5 pt-4 border-t border-ink-100 dark:border-ink-800 flex items-center justify-between text-xs text-ink-500 dark:text-ink-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">👥</span> 
+                  <span><strong className="text-ink-900 dark:text-ink-50 font-bold">{poll.uniqueVoters || 0}</strong> unique voters</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">🔥</span> 
+                  <span><strong className="text-ink-900 dark:text-ink-50 font-bold">{poll.votesLastHour || 0}</strong> votes past hour</span>
+                </div>
+              </div>
+            </>
           )}
         </div>
 

@@ -59,4 +59,7 @@ pollSchema.virtual('isExpired').get(function () {
 pollSchema.set('toJSON', { virtuals: true });
 pollSchema.set('toObject', { virtuals: true });
 
+// TTL Index to automatically delete expired polls
+pollSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 module.exports = mongoose.model('Poll', pollSchema);
